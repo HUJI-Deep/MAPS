@@ -66,7 +66,7 @@ namespace maps
               typename GlobalIOScheme>
     static __device__ __forceinline__ bool GlobalToShared1D(
         const T *ptr, int width, int offset, T *smem, int chunkID, 
-        int num_chunks)
+        int num_chunks, const T init = T(0))
     {
         // TODO(later): Vectorized reads
         
@@ -109,7 +109,7 @@ namespace maps
             result &= BoundaryConditions::template Read1D<GReadType, GlobalIOScheme>(
                 p,
                 offset + BLOCK_SIZE * i + tid, width,
-                tmp);
+                tmp, init);
 
             // Write to shared memory
             #pragma unroll
@@ -131,7 +131,7 @@ namespace maps
             result &= BoundaryConditions::template Read1D<GReadType, GlobalIOScheme>(
                 p, 
                 offset + REMAINDER_START_INDEX + tid, width,
-                tmp);
+                tmp, init);
 
             // Write to shared memory
             #pragma unroll
@@ -151,7 +151,7 @@ namespace maps
                 result &= BoundaryConditions::template Read1D<T, GlobalIOScheme>(
                     ptr,
                     offset + tid, width,
-                    tmp);
+                    tmp, init);
 
                 smem[tid] = tmp;
             }
@@ -168,7 +168,7 @@ namespace maps
               typename BoundaryConditions, typename GlobalIOScheme>
     static __device__ __forceinline__ bool GlobalToShared2D(
         const T *ptr, int width, int stride, int xoffset, int height, 
-        int yoffset, T *smem, int chunkID, int num_chunks)
+        int yoffset, T *smem, int chunkID, int num_chunks, const T init = T(0))
     {      
         // TODO(later): Vectorized reads
         typedef T GReadType;
@@ -222,7 +222,7 @@ namespace maps
                     xoffset + BLOCK_WIDTH * j + tidx, width,
                     stride,
                     yoffset + BLOCK_SIZE * i + tidy, height,
-                    tmp);
+                    tmp, init);
 
                 // Write to shared memory
                 #pragma unroll
@@ -242,7 +242,7 @@ namespace maps
                     xoffset + XREMAINDER_START_INDEX + tidx, width,
                     stride,
                     yoffset + BLOCK_SIZE * i + tidy, height,
-                    tmp);
+                    tmp, init);
 
                 // Write to shared memory
                 #pragma unroll
@@ -268,7 +268,7 @@ namespace maps
                     xoffset + BLOCK_WIDTH * j + tidx, width,
                     stride,
                     yoffset + YREMAINDER_START_INDEX + tidy, height,
-                    tmp);
+                    tmp, init);
 
                 // Write to shared memory
                 #pragma unroll
@@ -289,7 +289,7 @@ namespace maps
                     xoffset + XREMAINDER_START_INDEX + tidx, width,
                     stride,
                     yoffset + YREMAINDER_START_INDEX + tidy, height,
-                    tmp);
+                    tmp, init);
 
                 // Write to shared memory
                 #pragma unroll
@@ -315,7 +315,7 @@ namespace maps
     static __device__ __forceinline__ bool GlobalToShared3D(
         const T *ptr, int width, int stride, int xoffset,
         int height, int yoffset, int depth, int zoffset,
-        T *smem, int chunkID, int num_chunks)
+        T *smem, int chunkID, int num_chunks, const T init = T(0))
     {
         // TODO: 3D reads
         return false;
@@ -334,12 +334,12 @@ namespace maps
     {
         static __device__ __forceinline__ bool Read(
             const T *ptr, int dimensions[1], int stride, int xoffset,
-            int yoffset, int zoffset, T *smem, int chunkID, int num_chunks)
+            int yoffset, int zoffset, T *smem, int chunkID, int num_chunks, const T init = T(0))
         {
             return GlobalToShared1D<T, BLOCK_WIDTH, BLOCK_HEIGHT, BLOCK_DEPTH, 
                                     XSHARED, ASYNC, BoundaryConditions, 
                                     GlobalIOScheme>(
-              ptr, dimensions[0], xoffset, smem, chunkID, num_chunks);
+              ptr, dimensions[0], xoffset, smem, chunkID, num_chunks, init);
         }
     };
 
@@ -352,13 +352,13 @@ namespace maps
     {
         static __device__ __forceinline__ bool Read(
             const T *ptr, int dimensions[2], int stride, int xoffset,
-            int yoffset, int zoffset, T *smem, int chunkID, int num_chunks)
+            int yoffset, int zoffset, T *smem, int chunkID, int num_chunks, const T init = T(0))
         {
             return GlobalToShared2D<T, BLOCK_WIDTH, BLOCK_HEIGHT, BLOCK_DEPTH,
                                     XSHARED, XSTRIDE, YSHARED, ASYNC, 
                                     BoundaryConditions, GlobalIOScheme>(
                 ptr, dimensions[0], stride, xoffset, dimensions[1], yoffset, 
-                smem, chunkID, num_chunks);
+                smem, chunkID, num_chunks, init);
         }
     };
 
@@ -371,14 +371,14 @@ namespace maps
     {
         static __device__ __forceinline__ bool Read(
             const T *ptr, int dimensions[3], int stride, int xoffset,
-            int yoffset, int zoffset, T *smem, int chunkID, int num_chunks)
+            int yoffset, int zoffset, T *smem, int chunkID, int num_chunks, const T init = T(0))
         {
             return GlobalToShared3D<T, BLOCK_WIDTH, BLOCK_HEIGHT, BLOCK_DEPTH, 
                                     XSHARED, XSTRIDE, YSHARED, ZSHARED,
                                     ASYNC, BoundaryConditions,
                                     GlobalIOScheme>(
                 ptr, dimensions[0], stride, xoffset, dimensions[1], yoffset, 
-                dimensions[2], zoffset, smem, chunkID, num_chunks);
+                dimensions[2], zoffset, smem, chunkID, num_chunks, init);
         }
     };
 

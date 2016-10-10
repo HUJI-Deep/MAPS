@@ -43,7 +43,7 @@ namespace maps
 
         template <typename T, typename GlobalIOScheme>
         static __device__ __forceinline__ bool Read1D(const T *ptr, int offset,
-                                                      int width, T& value)
+                                                      int width, T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read1D<T>(ptr, offset, value);
         }
@@ -52,7 +52,7 @@ namespace maps
         static __device__ __forceinline__ bool Read2D(const T *ptr, int offx, 
                                                       int width, int stride, 
                                                       int offy, int height, 
-                                                      T& value)
+                                                      T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read2D<T>(ptr, offx, stride, offy, value);
         }
@@ -62,7 +62,7 @@ namespace maps
                                                       int width, int stride, 
                                                       int offy, int height, 
                                                       int offz, int depth, 
-                                                      T& value)
+                                                      T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read3D<T>(ptr, offx, stride, offy, height, 
                                              offz, value);
@@ -78,11 +78,11 @@ namespace maps
 
         template <typename T, typename GlobalIOScheme>
         static __device__ __forceinline__ bool Read1D(const T *ptr, int offset,
-                                                      int width, T& value)
+                                                      int width, T& value, const T init = T(0))
         {
             if (offset < 0 || offset >= width)
             {
-                value = T(0);
+                value = init;
                 return true;
             }
 
@@ -93,11 +93,11 @@ namespace maps
         static __device__ __forceinline__ bool Read2D(const T *ptr, int offx, 
                                                       int width, int stride, 
                                                       int offy, int height, 
-                                                      T& value)
+                                                      T& value, const T init = T(0))
         {
             if (offx < 0 || offy < 0 || offx >= width || offy >= height)
             {
-                value = T(0);
+                value = init;
                 return true;
             }
             return GlobalIOScheme::template Read2D<T>(ptr, offx, stride, offy, value);
@@ -108,7 +108,7 @@ namespace maps
                                                       int width, int stride,
                                                       int offy, int height,
                                                       int offz, int depth,
-                                                      T& value)
+                                                      T& value, const T init = T(0))
         {
             if (offx < 0 || offy < 0 || offz < 0 ||  
                 offx >= width || offy >= height || offz >= depth)
@@ -130,7 +130,7 @@ namespace maps
 
         template <typename T, typename GlobalIOScheme>
         static __device__ __forceinline__ bool Read1D(const T *ptr, int offset,
-                                                      int width, T& value)
+                                                      int width, T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read1D<T>(ptr,
                                              Clamp(offset, 0, width - 1), value);
@@ -140,7 +140,7 @@ namespace maps
         static __device__ __forceinline__ bool Read2D(const T *ptr, int offx, 
                                                       int width, int stride, 
                                                       int offy, int height, 
-                                                      T& value)
+                                                      T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read2D<T>(ptr,               
                                              Clamp(offx, 0, width - 1),
@@ -153,7 +153,7 @@ namespace maps
                                                       int width, int stride,
                                                       int offy, int height,
                                                       int offz, int depth,
-                                                      T& value)
+                                                      T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read3D<T>(ptr,
                                              Clamp(offx, 0, width - 1),
@@ -178,7 +178,7 @@ namespace maps
 
         template <typename T, typename GlobalIOScheme>
         static __device__ __forceinline__ bool Read1D(const T *ptr, int offset,
-                                                      int width, T& value)
+                                                      int width, T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read1D<T>(ptr, Wrap(offset, width), value);
         }
@@ -187,7 +187,7 @@ namespace maps
         static __device__ __forceinline__ bool Read2D(const T *ptr, int offx, 
                                                       int width, int stride,
                                                       int offy, int height, 
-                                                      T& value)
+                                                      T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read2D<T>(ptr,
                                              Wrap(offx, width), stride,
@@ -199,7 +199,7 @@ namespace maps
                                                       int width, int stride,
                                                       int offy, int height,
                                                       int offz, int depth,
-                                                      T& value)
+                                                      T& value, const T init = T(0))
         {
             return GlobalIOScheme::template Read3D<T>(ptr,
                                              Wrap(offx, width),

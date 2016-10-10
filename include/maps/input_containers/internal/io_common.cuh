@@ -80,7 +80,7 @@ namespace maps
                                                     int stride, int xoffset,
                                                     int yoffset, int zoffset, 
                                                     T *smem, int chunkID, 
-                                                    int num_chunks);
+                                                    int num_chunks, const T init = T(0));
     };
 
     ////////////////////////////////////////////////////////////////////////

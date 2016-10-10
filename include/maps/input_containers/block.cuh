@@ -229,6 +229,7 @@ namespace maps
         T *m_sdata;
         int m_blockInd;
         int m_blocks;
+        T m_init_value = T(0);
 
         // Multi-GPU parameters
         //int block_offset;
@@ -299,7 +300,7 @@ namespace maps
                                                                        DimensionOrdering::get<1>(blockId)),
                             DIMS < 3 ? 0 : (PRINCIPAL_DIM == 2) ? 0 : (SHARED_DEPTH  *
                                                                        DimensionOrdering::get<2>(blockId)),
-                            m_sdata, 0, m_blocks);
+                            m_sdata, 0, m_blocks, m_init_value);
         }
 
         /**
@@ -317,7 +318,7 @@ namespace maps
                                 (SHARED_HEIGHT * DimensionOrdering::get<1>(blockId)),
                                 DIMS < 3 ? 0 : (PRINCIPAL_DIM == 2) ? (SHARED_DEPTH  * 1) :
                                 (SHARED_DEPTH  * DimensionOrdering::get<2>(blockId)),
-                                m_sdata + TOTAL_SHARED, 1, m_blocks);
+                                m_sdata + TOTAL_SHARED, 1, m_blocks, m_init_value);
             }
         }
 
@@ -527,7 +528,7 @@ namespace maps
                                     DIMS < 3 ? 0 : (PRINCIPAL_DIM == 2) ? (SHARED_DEPTH  * (m_blockInd + 1)) :
                                     (SHARED_DEPTH  * DimensionOrdering::get<2>(blockId)),
                                     m_sdata + ((USE_SMEM_DOUBLE_BUFFERING && (m_blockInd % 2 == 0)) ? TOTAL_SHARED : 0),
-                                    m_blockInd + 1, m_blocks);
+                                    m_blockInd + 1, m_blocks, m_init_value);
                 }
             }
             else
@@ -544,7 +545,7 @@ namespace maps
                                    (SHARED_HEIGHT * DimensionOrdering::get<1>(blockId)),
                                    DIMS < 3 ? 0 : (PRINCIPAL_DIM == 2) ? (SHARED_DEPTH  * m_blockInd) :
                                    (SHARED_DEPTH  * DimensionOrdering::get<2>(blockId)),
-                                   m_sdata, m_blockInd, m_blocks);
+                                   m_sdata, m_blockInd, m_blocks, m_init_value);
                 }
             }
         }
@@ -569,7 +570,8 @@ namespace maps
                                    (SHARED_HEIGHT * DimensionOrdering::get<1>(blockId)),
                                    DIMS < 3 ? 0 : (PRINCIPAL_DIM == 2) ? (SHARED_DEPTH  * (m_blockInd + 1)) :
                                    (SHARED_DEPTH  * DimensionOrdering::get<2>(blockId)),
-                                   m_sdata + ((USE_SMEM_DOUBLE_BUFFERING && (m_blockInd % 2 == 0)) ? TOTAL_SHARED : 0), m_blockInd + 1, m_blocks);
+                                   m_sdata + ((USE_SMEM_DOUBLE_BUFFERING && (m_blockInd % 2 == 0)) ? TOTAL_SHARED : 0),
+                                   m_blockInd + 1, m_blocks, m_init_value);
                 }
             }
             else
@@ -584,7 +586,7 @@ namespace maps
                                     (SHARED_HEIGHT * DimensionOrdering::get<1>(blockId)),
                                     DIMS < 3 ? 0 : (PRINCIPAL_DIM == 2) ? (SHARED_DEPTH  * m_blockInd) :
                                     (SHARED_DEPTH  * DimensionOrdering::get<2>(blockId)),
-                                    m_sdata, m_blockInd, m_blocks);
+                                    m_sdata, m_blockInd, m_blocks, m_init_value);
                 }
             }
         }
